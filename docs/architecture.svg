@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520">
+  <rect width="1200" height="520" rx="28" fill="#0b1020"/>
+  <text x="55" y="64" fill="#f4f7ff" font-family="Arial" font-size="30" font-weight="700">Transaction Graph Fraud — Analysis Pipeline</text>
+  <text x="55" y="98" fill="#92a3c4" font-family="Arial" font-size="16">Synthetic/public transactions • topology • typology detectors • explainable review</text>
+  <g font-family="Arial" text-anchor="middle">
+    <rect x="55" y="170" width="190" height="105" rx="16" fill="#151f38" stroke="#4263eb"/>
+    <text x="150" y="207" fill="#dfe7ff" font-size="18" font-weight="700">Transactions</text>
+    <text x="150" y="235" fill="#9fb0cf" font-size="14">JSONL / REST</text><text x="150" y="257" fill="#9fb0cf" font-size="14">deterministic demo</text>
+    <rect x="285" y="170" width="190" height="105" rx="16" fill="#151f38" stroke="#4263eb"/>
+    <text x="380" y="207" fill="#dfe7ff" font-size="18" font-weight="700">Graph Builder</text>
+    <text x="380" y="235" fill="#9fb0cf" font-size="14">NetworkX MultiDiGraph</text><text x="380" y="257" fill="#9fb0cf" font-size="14">entity features</text>
+    <rect x="515" y="135" width="220" height="175" rx="16" fill="#151f38" stroke="#9b5de5"/>
+    <text x="625" y="170" fill="#efe5ff" font-size="18" font-weight="700">Typology Detectors</text>
+    <text x="625" y="203" fill="#bca9df" font-size="14">rapid cycles</text><text x="625" y="228" fill="#bca9df" font-size="14">fan-in / fan-out</text>
+    <text x="625" y="253" fill="#bca9df" font-size="14">layering chains</text><text x="625" y="278" fill="#bca9df" font-size="14">velocity / flow imbalance</text>
+    <rect x="775" y="170" width="170" height="105" rx="16" fill="#151f38" stroke="#00b894"/>
+    <text x="860" y="207" fill="#dcfff4" font-size="18" font-weight="700">Risk Engine</text>
+    <text x="860" y="235" fill="#9dd9c6" font-size="14">entity ranking</text><text x="860" y="257" fill="#9dd9c6" font-size="14">reason codes</text>
+    <rect x="985" y="145" width="160" height="155" rx="16" fill="#151f38" stroke="#ffb020"/>
+    <text x="1065" y="183" fill="#fff2d2" font-size="18" font-weight="700">Outputs</text>
+    <text x="1065" y="215" fill="#e7c477" font-size="14">FastAPI</text><text x="1065" y="240" fill="#e7c477" font-size="14">JSON report</text>
+    <text x="1065" y="265" fill="#e7c477" font-size="14">HTML cockpit</text>
+  </g>
+  <g stroke="#63779f" stroke-width="3" fill="none"><path d="M245 222 H285"/><path d="M475 222 H515"/><path d="M735 222 H775"/><path d="M945 222 H985"/></g>
+  <g fill="#63779f"><polygon points="285,222 274,216 274,228"/><polygon points="515,222 504,216 504,228"/><polygon points="775,222 764,216 764,228"/><polygon points="985,222 974,216 974,228"/></g>
+  <rect x="55" y="360" width="1090" height="100" rx="16" fill="#10182b" stroke="#263552"/>
+  <text x="80" y="395" fill="#dce6fb" font-family="Arial" font-size="16" font-weight="700">Design boundary</text>
+  <text x="80" y="423" fill="#94a5c3" font-family="Arial" font-size="14">This is an explainable graph-analytics reference system, not a claim of production AML effectiveness. Thresholds and synthetic scenarios are explicit and inspectable.</text>
+</svg>
