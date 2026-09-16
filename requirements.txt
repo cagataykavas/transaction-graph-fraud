@@ -1,5 +1,7 @@
 fastapi>=0.116
 networkx>=3.4
+numpy>=2.0
+scipy>=1.13
 pydantic>=2.11
 uvicorn[standard]>=0.35
 pytest>=8.0
