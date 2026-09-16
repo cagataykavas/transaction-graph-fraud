@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 from dataclasses import dataclass
-import math
 
 
 @dataclass(frozen=True)

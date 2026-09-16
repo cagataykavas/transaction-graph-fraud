@@ -3,7 +3,11 @@ from __future__ import annotations
 from fastapi.testclient import TestClient
 
 from app.api import app
-from graphfraud.detectors import detect_cycles, detect_fan_patterns, detect_layering_chains
+from graphfraud.detectors import (
+    detect_cycles,
+    detect_fan_patterns,
+    detect_layering_chains,
+)
 from graphfraud.engine import GraphFraudEngine
 from graphfraud.synthetic import synthetic_transactions
 
