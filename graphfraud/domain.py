@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 
@@ -27,7 +27,7 @@ class Transaction:
 
     @property
     def event_time_iso(self) -> str:
-        return datetime.fromtimestamp(self.timestamp, tz=timezone.utc).isoformat()
+        return datetime.fromtimestamp(self.timestamp, tz=UTC).isoformat()
 
     def as_dict(self) -> dict[str, Any]:
         payload = asdict(self)
@@ -60,6 +60,7 @@ class EntityRisk:
     severity: str
     features: dict[str, float]
     reasons: tuple[str, ...]
+    attribution: dict[str, Any]
 
     def as_dict(self) -> dict[str, Any]:
         payload = asdict(self)
