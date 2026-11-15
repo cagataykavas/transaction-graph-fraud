@@ -8,7 +8,7 @@ The public project uses deterministic synthetic data. It is designed to demonstr
 
 ## What it detects
 
-- **rapid fund cycles** such as `A → B → C → A`;
+- **chronologically feasible fund cycles** such as `A → B → C → A`;
 - **fan-in / fan-out** concentration patterns;
 - **rapid layering chains** that preserve similar amounts across multiple hops;
 - high transaction velocity and unusual inbound/outbound imbalance;
@@ -104,6 +104,11 @@ tests/
 **MultiDiGraph instead of a single weighted edge.** Multiple transfers between the same pair retain their own transaction IDs and timestamps, which matters when a finding must point back to evidence.
 
 **Pattern findings stay separate from the entity score.** A reviewer can see *why* an entity was raised rather than receiving only one opaque probability.
+
+**Cycle evidence follows event time.** A topology-only cycle is not enough: the detector searches
+every possible start edge and emits a finding only when the selected transfers can move value around
+the directed cycle in non-decreasing event time. Parallel transfers are resolved deterministically,
+and the ordered timestamps are included in reviewer evidence.
 
 **Deterministic synthetic cases.** They make tests reproducible and keep the public repository free of confidential datasets.
 
