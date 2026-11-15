@@ -24,6 +24,70 @@ def _finding_id(kind: str, entities: tuple[str, ...], tx_ids: tuple[str, ...]) -
     return f"{kind}-{hashlib.sha1(raw.encode()).hexdigest()[:10]}"
 
 
+def _chronological_cycle(
+    cycle: list[str],
+    by_pair: dict[tuple[str, str], list[Transaction]],
+    *,
+    max_time_span_seconds: float,
+    min_amount: float,
+) -> tuple[tuple[str, ...], tuple[Transaction, ...]] | None:
+    """Select a deterministic sequence that can move value around the cycle in event time.
+
+    Every rotation is considered because a graph cycle has no intrinsic first edge. For each
+    possible first transfer, choosing the earliest eligible transfer on the next edge minimizes
+    elapsed time and cannot remove a later edge from the feasible window.
+    """
+
+    candidates: list[tuple[tuple[str, ...], tuple[Transaction, ...]]] = []
+    for offset in range(len(cycle)):
+        entities = tuple(cycle[offset:] + cycle[:offset])
+        edge_rows = [
+            sorted(
+                (
+                    tx
+                    for tx in by_pair[(src, entities[(index + 1) % len(entities)])]
+                    if tx.amount >= min_amount
+                ),
+                key=lambda tx: (tx.timestamp, tx.transaction_id),
+            )
+            for index, src in enumerate(entities)
+        ]
+        if any(not rows for rows in edge_rows):
+            continue
+
+        for first in edge_rows[0]:
+            selected = [first]
+            for rows in edge_rows[1:]:
+                next_transaction = next(
+                    (
+                        tx
+                        for tx in rows
+                        if tx.timestamp >= selected[-1].timestamp
+                        and tx.timestamp - first.timestamp <= max_time_span_seconds
+                    ),
+                    None,
+                )
+                if next_transaction is None:
+                    break
+                selected.append(next_transaction)
+            if len(selected) == len(entities):
+                candidates.append((entities, tuple(selected)))
+
+    if not candidates:
+        return None
+
+    def rank(
+        item: tuple[tuple[str, ...], tuple[Transaction, ...]],
+    ) -> tuple[object, ...]:
+        entities, selected = item
+        amounts = [tx.amount for tx in selected]
+        span = selected[-1].timestamp - selected[0].timestamp
+        similarity = min(amounts) / (max(amounts) + 1e-9)
+        return span, -similarity, tuple(tx.transaction_id for tx in selected), entities
+
+    return min(candidates, key=rank)
+
+
 def detect_cycles(
     transactions: list[Transaction],
     *,
@@ -48,28 +112,23 @@ def detect_cycles(
             continue
         seen.add(key)
 
-        selected: list[Transaction] = []
-        valid = True
-        for i, src in enumerate(cycle):
-            dst = cycle[(i + 1) % len(cycle)]
-            candidates = sorted(by_pair[(src, dst)], key=lambda tx: tx.timestamp)
-            if not candidates:
-                valid = False
-                break
-            selected.append(max(candidates, key=lambda tx: tx.amount))
-        if not valid:
+        chronological = _chronological_cycle(
+            cycle,
+            by_pair,
+            max_time_span_seconds=max_time_span_seconds,
+            min_amount=min_amount,
+        )
+        if chronological is None:
             continue
+        entities, selected = chronological
 
         timestamps = [tx.timestamp for tx in selected]
         amount_floor = min(tx.amount for tx in selected)
-        span = max(timestamps) - min(timestamps)
-        if span > max_time_span_seconds or amount_floor < min_amount:
-            continue
+        span = timestamps[-1] - timestamps[0]
         amount_similarity = amount_floor / (max(tx.amount for tx in selected) + 1e-9)
         time_compactness = max(0.0, 1.0 - span / max_time_span_seconds)
         score = min(1.0, 0.45 + 0.35 * amount_similarity + 0.20 * time_compactness)
         tx_ids = tuple(tx.transaction_id for tx in selected)
-        entities = tuple(cycle)
         findings.append(
             GraphFinding(
                 finding_id=_finding_id("cycle", entities, tx_ids),
@@ -82,7 +141,13 @@ def detect_cycles(
                     f"Funds traverse a {len(cycle)}-entity directed cycle within {span:.0f}s "
                     f"with minimum transferred amount {amount_floor:.2f}."
                 ),
-                evidence={"cycle_length": len(cycle), "time_span_seconds": span, "minimum_amount": amount_floor},
+                evidence={
+                    "cycle_length": len(cycle),
+                    "time_span_seconds": span,
+                    "minimum_amount": amount_floor,
+                    "chronological": True,
+                    "ordered_event_times": timestamps,
+                },
             )
         )
     return findings
