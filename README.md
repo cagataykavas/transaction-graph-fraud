@@ -10,6 +10,7 @@ The public project uses deterministic synthetic data. It is designed to demonstr
 
 - **rapid fund cycles** such as `A → B → C → A`;
 - **fan-in / fan-out** concentration patterns;
+- repeated sub-threshold transfers whose currency-specific aggregate crosses a configured review threshold;
 - **rapid layering chains** that preserve similar amounts across multiple hops;
 - high transaction velocity and unusual inbound/outbound imbalance;
 - graph features including degree, counterparty count, PageRank and clustering;
@@ -77,6 +78,11 @@ sender_1 ---\
 ...          > risk_mule -> offramp
 sender_6 ---/
 
+struct_sender_0 --\
+struct_sender_1 ---\
+...                 > risk_structuring_hub
+struct_sender_3 ---/
+
 layer_a -> layer_b -> layer_c -> layer_d -> layer_e
 ```
 
@@ -89,6 +95,7 @@ graphfraud/
   domain.py       transaction, finding and entity-risk models
   features.py     graph construction and entity-level features
   detectors.py    cycle, fan and layering typology detectors
+  structuring.py  currency-scoped threshold aggregation detector
   engine.py       finding aggregation and risk ranking
   synthetic.py    deterministic synthetic scenarios
   report.py       standalone HTML reviewer report
@@ -108,6 +115,9 @@ tests/
 **Deterministic synthetic cases.** They make tests reproducible and keep the public repository free of confidential datasets.
 
 **Human review is the intended consumer.** Scores rank and summarize cases; they are not presented as autonomous enforcement decisions.
+
+**Monetary units stay explicit.** The [threshold structuring detector](docs/threshold-structuring.md)
+analyzes one configured currency at a time and never sums unlike currency units into evidence.
 
 ## Docker
 
