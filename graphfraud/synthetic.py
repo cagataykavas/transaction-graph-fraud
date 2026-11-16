@@ -52,6 +52,18 @@ def synthetic_transactions(seed: int = 42, background_count: int = 160) -> list[
         )
     rows.append(Transaction("fanin_exit", "risk_mule", "offramp", 9_800, base + 30_600))
 
+    # Four individually sub-threshold transfers that cross the synthetic review threshold.
+    for index, amount in enumerate((2_600, 2_550, 2_500, 2_450)):
+        rows.append(
+            Transaction(
+                f"structuring_{index}",
+                f"struct_sender_{index}",
+                "risk_structuring_hub",
+                amount,
+                base + 35_000 + index * 60,
+            )
+        )
+
     # Layering chain with similar amounts and short gaps.
     chain = ["layer_a", "layer_b", "layer_c", "layer_d", "layer_e"]
     amount = 18_000.0

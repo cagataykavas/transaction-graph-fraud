@@ -5,6 +5,7 @@ import math
 from .detectors import detect_cycles, detect_fan_patterns, detect_layering_chains
 from .domain import EntityRisk, GraphFinding, Transaction
 from .features import entity_features
+from .structuring import detect_threshold_structuring
 
 
 def _severity(score: float) -> str:
@@ -35,6 +36,7 @@ class GraphFraudEngine:
             *detect_cycles(transactions),
             *detect_fan_patterns(transactions),
             *detect_layering_chains(transactions),
+            *detect_threshold_structuring(transactions),
         ]
         dedup: dict[str, GraphFinding] = {finding.finding_id: finding for finding in findings}
         return sorted(dedup.values(), key=lambda item: item.score, reverse=True)
