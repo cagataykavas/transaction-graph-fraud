@@ -93,6 +93,7 @@ graphfraud/
   synthetic.py    deterministic synthetic scenarios
   report.py       standalone HTML reviewer report
   cli.py          reproducible command-line run
+  split_audit.py  train/test identity, topology and time contamination audit
 app/
   api.py           FastAPI boundary
 tests/
@@ -109,6 +110,32 @@ tests/
 
 **Human review is the intended consumer.** Scores rank and summarize cases; they are not presented as autonomous enforcement decisions.
 
+## Graph split contamination audit
+
+An entity-level graph model can appear to generalize while the same accounts or directed
+relationships occur in both training and test evidence. The audit makes that evaluation claim
+explicit before model fitting:
+
+```python
+from graphfraud import GraphSplitPolicy, audit_graph_split
+
+audit = audit_graph_split(train_transactions, test_transactions)
+assert audit.accepted
+```
+
+The zero-overlap defaults represent **inductive entity generalization**. A temporal or
+transductive backtest may deliberately permit known entities and relationships by setting the two
+overlap limits, while still enforcing disjoint transaction IDs and a strict event-time/embargo
+boundary. The result reports aggregate entity and directed-edge overlap rates, exact split sizes,
+the observed temporal gap, reviewed policy, input commitments, finding codes, and a deterministic
+evidence digest. It enforces the total transaction budget before inspecting members and rejects
+malformed or non-finite transaction evidence.
+
+This audit does not prove that labels, features, or upstream graph snapshots are point-in-time
+correct. Identity commitments are integrity aids, not anonymization or producer authentication.
+Production thresholds must match the declared evaluation objective; repeated accounts are
+expected in some temporal monitoring designs and are not automatically leakage.
+
 ## Docker
 
 ```bash
@@ -120,7 +147,7 @@ docker run --rm -p 8000:8000 transaction-graph-fraud
 
 ```bash
 ruff check .
-pytest -q
+python -m pytest -q
 ```
 
 GitHub Actions runs linting, tests, a complete CLI demo and a container build.
